@@ -9,6 +9,7 @@ export default class Observer extends Events {
     private pingUrl;
     private checkInterval;
     private websocketRetryInterval;
+    private pingSocketInterval;
     private onlineStatus;
     private socketCreator;
     private socketInst;
@@ -22,6 +23,8 @@ export default class Observer extends Events {
      */
     isOnline(): boolean;
     isSocketOk(): boolean | null;
+    send(data: string): void;
+    close(): void;
     isSocketConnecting(): boolean | null;
     private init;
     private establishSocketIfNeeded;

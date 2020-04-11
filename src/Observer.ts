@@ -14,6 +14,8 @@ export default class Observer extends Events {
 
   private websocketRetryInterval = 5000;
 
+  private pingSocketInterval = 12000;
+
   private onlineStatus: boolean = true;
 
   private socketCreator: null | ISocketCreator = null;
@@ -75,6 +77,18 @@ export default class Observer extends Events {
     );
   }
 
+  public send(data: string) {
+    if (this.socketInst) {
+      this.socketInst.send(data);
+    }
+  }
+
+  public close() {
+    if (this.socketInst) {
+      this.socketInst.close();
+    }
+  }
+
   public isSocketConnecting() {
     return (
       this.socketInst &&
@@ -97,6 +111,12 @@ export default class Observer extends Events {
     if (this.socketCreator) {
       this.establishSocketIfNeeded();
     }
+
+    setInterval(() => {
+      if (this.socketInst) {
+        this.socketInst.send("ping");
+      }
+    }, this.pingSocketInterval);
   }
 
   private establishSocketIfNeeded() {
@@ -107,6 +127,7 @@ export default class Observer extends Events {
       this.socketInst = this.socketCreator();
       this.socketInst.onclose = () => {
         this.emit("close");
+        this.socketInst = null;
         // 尝试重启
         setTimeout(() => {
           this.establishSocketIfNeeded();
