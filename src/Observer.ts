@@ -2,9 +2,9 @@ import Events from "mmevents";
 
 type ISocketCreator = () => WebSocket;
 export interface IProps {
-  pingUrl?: string;
-  checkInterval?: number;
-  socket?: string | ISocketCreator;
+  pingUrl?: string; // 监测网络可用的 url
+  checkInterval?: number; // 监测网络的间隔
+  socket?: string | ISocketCreator; // 如需创建 socket 则可配置，支持字符串的 socket url，或者函数返回 url
 }
 
 export default class Observer extends Events {
