@@ -22,6 +22,8 @@ export default class Observer extends Events {
 
   private socketInst: null | WebSocket = null;
 
+  socketOpenPromise = new Promise(() => {});
+
   constructor(props?: IProps) {
     super();
     if (props) {
@@ -78,9 +80,9 @@ export default class Observer extends Events {
   }
 
   public send(data: string) {
-    if (this.socketInst) {
-      this.socketInst.send(data);
-    }
+    this.socketOpenPromise.then(() => {
+      this.socketInst && this.socketInst.send(data);
+    });
   }
 
   public close() {
@@ -125,6 +127,10 @@ export default class Observer extends Events {
     }
     if (this.socketCreator) {
       this.socketInst = this.socketCreator();
+      let resolve: any;
+      this.socketOpenPromise = new Promise(resl => {
+        resolve = resl;
+      });
       this.socketInst.onclose = () => {
         this.emit("close");
         this.socketInst = null;
@@ -144,6 +150,7 @@ export default class Observer extends Events {
         this.emit("message", msg);
       };
       this.socketInst.onopen = () => {
+        resolve && resolve();
         this.emit("open");
       };
     }
